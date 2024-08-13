@@ -1,1 +1,2 @@
-export { DatadogLogger } from './logs';
+export * from './logs';
+export * from './events';
