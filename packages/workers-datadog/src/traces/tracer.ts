@@ -1,25 +1,5 @@
-import { StructuredError } from "../errorUtils";
-
-import { AgentPayloadSchema } from "./gen/agent_payload_pb";
-import { Span, SpanOptions, Tracer } from "./types";
-import { create, toBinary } from "@bufbuild/protobuf";
-
-export type TracerOptions = {
-  env: string;
-  service: string;
-  hostname: string;
-  version: string;
-  apiKey: string;
-};
-
-type RecordedSpan = {
-  opts: SpanOptions;
-  startMs: number;
-  durationMs: number;
-  spanId: bigint;
-  traceId: bigint;
-  parentSpanId?: bigint;
-};
+import { Span, Tracer } from "./types";
+import { RecordedSpan, SpanOptions, TracerOptions } from "datadog-api-lite";
 
 export class DatadogTracer implements Tracer {
   private readonly opts: TracerOptions;
@@ -42,71 +22,8 @@ export class DatadogTracer implements Tracer {
   }
 
   public async flushSpans(): Promise<void> {
-    const payload = create(AgentPayloadSchema, {
-      hostName: this.opts.hostname,
-      env: this.opts.env,
-      tracerPayloads: [
-        {
-          appVersion: this.opts.version,
-          chunks: [
-            {
-              priority: -128,
-              spans: this.spans.map((span) => ({
-                name: span.opts.name,
-                service: span.opts.service ?? this.opts.service,
-                resource: span.opts.resource,
-                meta: Object.fromEntries(
-                  Object.entries(span.opts.meta ?? {}).flatMap(
-                    ([key, value]) => {
-                      if (value === undefined) {
-                        return [];
-                      }
-
-                      return [[key, value]];
-                    },
-                  ),
-                ),
-                metrics: span.opts.metrics ?? {},
-                spanID: span.spanId,
-                traceID: span.traceId,
-                start: millisToNanos(span.startMs),
-                duration: millisToNanos(span.durationMs),
-                parentID: span.parentSpanId,
-              })),
-            },
-          ],
-        },
-      ],
-    });
-
-    // todo: gzip
-
-    const response = await fetch(
-      "https://trace.agent.datadoghq.com/api/v0.2/traces",
-      {
-        method: "POST",
-        headers: {
-          "content-type": "application/x-protobuf",
-          "X-Datadog-Reported-Languages": "",
-          "dd-api-key": this.opts.apiKey,
-        },
-        body: toBinary(AgentPayloadSchema, payload),
-      },
-    );
-
-    if (!response.ok) {
-      throw new StructuredError({
-        status: response.status,
-        statusText: response.statusText,
-      });
-    }
-
     this.spans.splice(0, this.spans.length);
   }
-}
-
-function millisToNanos(value: number) {
-  return BigInt(value) * 1000000n;
 }
 
 class DatadogSpan implements Span {

@@ -1,0 +1,12 @@
+{
+  "name": "workers-datadog",
+  "version": "0.0.1",
+  "dependencies": {
+    "datadog-api-lite": "0.0.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240729.0",
+    "@types/node": "^22.1.0",
+    "ts-jest": "^29.2.4"
+  }
+}

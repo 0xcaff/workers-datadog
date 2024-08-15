@@ -6,7 +6,7 @@ import { headerKeys } from "./fetch";
 import { datadogParentIdHeaderKey, datadogTraceIdHeaderKey } from "./tracer";
 
 export type Context = {
-    waitUntil(promise: Promise<any>): void;
+  waitUntil(promise: Promise<any>): void;
 };
 
 function extractId(headers: Headers, key: string) {
@@ -22,7 +22,7 @@ export async function handleFetchWithTracer(
   tracer: Tracer,
   request: Request,
   ctx: Context & { id?: DurableObjectId },
-  next: (span: ReadOnlySpan) => Promise<Response>
+  next: (span: ReadOnlySpan) => Promise<Response>,
 ): Promise<Response> {
   const url = new URL(request.url);
   const span = tracer.startSpan(
@@ -44,7 +44,7 @@ export async function handleFetchWithTracer(
       isTopLevel: true,
     },
     extractId(request.headers, datadogTraceIdHeaderKey),
-    extractId(request.headers, datadogParentIdHeaderKey)
+    extractId(request.headers, datadogParentIdHeaderKey),
   );
 
   const response = await withSpanContext(span, async () => await next(span));
@@ -63,7 +63,7 @@ export async function handleFetchWithTracer(
 export async function handleAlarmWithTracer(
   tracer: Tracer,
   ctx: Context & { id: DurableObjectId },
-  fn: () => Promise<void>
+  fn: () => Promise<void>,
 ): Promise<void> {
   await withSpan(
     tracer.startSpan({
@@ -74,7 +74,7 @@ export async function handleAlarmWithTracer(
         ...durableObjectFields(ctx.id),
       },
     }),
-    fn
+    fn,
   );
 
   ctx.waitUntil(tracer.flushSpans());

@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "types": ["@types/jest", "@types/node"],
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "skipDefaultLibCheck": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "declaration": true,
+    "outDir": "./lib"
+  },
+  "ts-node": {
+    "files": true
+  },
+  "include": ["./src"]
+}
+

@@ -1,19 +1,7 @@
 {
-  "scripts": {
-    "generate": "yarn run generate-protos",
-    "download-proto": "scripts/downloadDatadogProtos.sh",
-    "generate-protos": "yarn download-proto && yarn buf generate",
-    "postinstall": "yarn run generate"
-  },
+  "private": true,
+  "workspaces": ["packages/*"],
   "devDependencies": {
-    "@bufbuild/buf": "^1.35.1",
-    "@bufbuild/protobuf": "^2.0.0",
-    "@bufbuild/protoc-gen-es": "^2.0.0",
-    "@cloudflare/workers-types": "^4.20240729.0",
-    "@types/jest": "^29.5.12",
-    "@types/node": "^22.1.0",
-    "jest": "^29.7.0",
-    "prettier": "^3.3.3",
-    "ts-jest": "^29.2.4"
+    "prettier": "^3.3.3"
   }
 }

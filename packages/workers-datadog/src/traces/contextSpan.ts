@@ -1,6 +1,7 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 
-import { ReadOnlySpan, Span, SpanOptions } from "./types";
+import { ReadOnlySpan, Span } from "./types";
+import { SpanOptions } from "datadog-api-lite";
 
 const asyncLocalStorage = new AsyncLocalStorage<Span>();
 
@@ -10,14 +11,14 @@ export function getSpan(): ReadOnlySpan | undefined {
 
 export async function withSpanContext<R>(
   span: Span,
-  fn: () => Promise<R>
+  fn: () => Promise<R>,
 ): Promise<R> {
   return asyncLocalStorage.run(span, fn);
 }
 
 export async function withSpan<R>(
   span: Span,
-  fn: () => Promise<R>
+  fn: () => Promise<R>,
 ): Promise<R> {
   const result = await withSpanContext(span, async () => await fn());
 
@@ -28,7 +29,7 @@ export async function withSpan<R>(
 
 export async function trace<T>(
   spanOptions: SpanOptions,
-  fn: () => Promise<T>
+  fn: () => Promise<T>,
 ): Promise<T> {
   const rootSpan = getSpan();
   if (!rootSpan) {
